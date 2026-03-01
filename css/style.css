@@ -99,12 +99,26 @@ footer {
 
 
 @media (max-width: 768px) {
-    h1 {
-        font-size: 1.8rem;
+
+    header {
+        flex-direction: column;
+        gap: 15px;
     }
 
     nav {
-        display: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    nav a {
+        margin-left: 0;
+        font-size: 0.9rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
     }
 }
 
