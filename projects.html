@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Projects | Lmesser-Labs / LANRanger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Lmesser-Labs/LANRanger</div>
+        <nav>
+            <a href="./index.html">Home</a>
+            <a href="./projects.html">Projects</a>
+            <a href="#blog">Blog</a>
+            <a href="#product">Product</a>
+            <a href="./about.html">About</a>
+        </nav>
+    </header>
+
+    <section class="projects-page">
+
+        <div class="projects-header">
+            <h1>Projects</h1>
+            <p>
+                These are tools, experiments, and lab environments I've built over the years. Some started as small troubleshooting scripts and grew into useful utilities. Others are full lab systems built to explore how networks and RF systems behave.
+            </p>
+            <p>
+                Most projects here fall into one of three categories: network troubleshooting tools, automation utilities, or RF/cellular experiments.
+            </p>
+        </div>
+
+        <div class="project-list">
+
+            <div class="project-card">
+                <h2>VOSSLoopTrace</h2>
+                <p>
+                    A troubleshooting utility designed for Extreme Networks VOSS environments. The script analyzes output from the VOSS control-plane trace tool to identify possible switching loops and excessive traffic sources impacting the CPU.
+                </p>
+                <p>
+                    It can either analyze an existing trace file or log directly into a VSP switch, collect trace data, and process it automatically. The output highlights ports, VLANs, and MAC addresses associated with potential loop conditions.
+
+                    Originally written to speed up diagnosing control-plane congestion issues inside SPBM fabric environments.
+                </p>
+                <a href="https://github.com/lmesserStep/VOSSLoopTrace" class="project-link">GitHub →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>OutgoingPorts</h2>
+                <p>
+                    A lightweight TCP connectivity tester designed to verify whether outbound ports from a network are able to complete a TCP three-way handshake.
+                </p>
+                <p>
+                    The project uses a simple PHP web endpoint combined with carefully crafted iptables rules to report the source port and destination port used during a connection attempt.
+                </p>
+                <p>
+                    This makes it useful when diagnosing firewall policies, NAT behavior, or verifying which outbound ports are permitted from restricted networks.
+                </p>
+                <a href="https://github.com/lmesserStep/OutgoingPorts" class="project-link">GitHub →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>RANPI</h2>
+                <p>
+                    An experimental compact cellular lab platform designed for running private LTE or 5G networks using SDR hardware. RANPI combines Open5GS, srsRAN, and software-defined radio into a portable environment for testing cellular infrastructure.
+                </p>
+                <p>
+                    The goal is to make learning carrier-grade cellular architecture possible without needing a rack of telecom equipment.
+                </p>
+                <a href="#" class="project-link">Project Page →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>LTE Cell Measurement Utility</h2>
+                <p>
+                    A tool designed to extract LTE signal metrics directly from the srsRAN PHY layer. The utility captures measurements such as RSSI, RSRP, and RSRQ and outputs them in JSON format for automation, monitoring, or visualization systems.
+                </p>
+                <a href="https://github.com/lmesserStep/srsRAN_4G/tree/lte-cell-measure" class="project-link">GitHub →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>FortiTool</h2>
+                <p>
+                    A browser extension built to simplify interacting with FortiGate firewalls. The tool adds diagnostic utilities and embeds a CLI terminal directly inside the browser using WebSockets.
+                </p>
+                <p>
+                    It allows engineers to open a FortiGate tab and interact with the device through a streamlined interface without constantly switching between tools.
+                </p>
+                <a href="#" class="project-link">Project Page →</a>
+            </div>
+
+            <div class="project-card">
+                <h2>Wireless Ethernet Bridge over SDR</h2>
+                <p>
+                    An experimental project exploring whether raw Ethernet frames can be transported over software-defined radio links.
+                </p>
+                <p>
+                    The system uses TAP interfaces and custom Python pipelines to transmit Ethernet frames between hosts using QPSK modulation over SDR hardware, instead of traditional wired links.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h2>Fragmentation & PMTUD Experiments</h2>
+                <p>
+                    IPv6 experiments exploring how networks handle oversized packets, fragmentation, and broken Path MTU Discovery.
+                </p>
+                <p class="project-note">
+                    More projects will be added as the lab grows.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <footer>
+        © 2026 Lmesser-Labs. All rights reserved.
+    </footer>
+
+</body>
+
+</html>
