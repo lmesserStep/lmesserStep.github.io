@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AS402474 | Lmesser-Labs/LANRanger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Lmesser-Labs/LANRanger</div>
+        <nav>
+            <a href="./index.html">Home</a>
+            <a href="./projects.html">Projects</a>
+            <a href="#blog">Blog</a>
+            <a href="#product">Product</a>
+            <a href="./about.html">About</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AS402474</h1>
+
+            <p>
+                My little corner of the global routing table.
+            </p>
+
+            <div class="cta-group">
+                <a href="https://bgp.tools/as/402474" class="cta" target="_blank" rel="noopener noreferrer">View on bgp.tools</a>
+                <a href="https://www.peeringdb.com/net?asn=402474" class="cta" target="_blank" rel="noopener noreferrer">PeeringDB</a>
+                <a href="./index.html" class="cta">Back Home</a>
+            </div>
+
+            <div class="tcpdump-container">
+                <pre class="as-output">
+LANRanger-BGP# show bgp summary
+
+Local AS:        AS402474
+Network Name:    Lmesser-Labs / LANRanger
+Purpose:         Personal lab, IPv6, BGP, routing, and network engineering experiments
+Primary Stack:   IPv6
+Status:          Globally routed-ish, because of course we had to do BGP
+
+LANRanger-BGP# show bgp ipv6 unicast
+
+Prefix              Origin AS     Notes
+2602:f3df::/40      AS402474      IPv6 allocation announced by LANRanger
+
+                </pre>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        © 2026 Lmesser-Labs. All rights reserved.
+    </footer>
+
+</body>
+
+</html>
