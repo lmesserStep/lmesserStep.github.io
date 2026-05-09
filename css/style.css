@@ -276,3 +276,133 @@ footer {
     border: 1px solid rgba(51, 255, 119, 0.25);
     white-space: pre-wrap;
 }
+/* Fake Router CLI */
+
+.terminal-section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 35px auto 0;
+}
+
+.terminal-wrapper {
+    background: #050505;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 18px rgba(0, 255, 136, 0.25);
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+    width: min(100%, 1100px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.terminal-titlebar {
+    background: #101010;
+    color: var(--accent);
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.45);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-size: clamp(0.65rem, 1.6vw, 0.85rem);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.terminal-titlebar span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.7;
+}
+
+.terminal {
+    padding: clamp(12px, 2vw, 18px);
+    height: clamp(420px, 62vh, 680px);
+    overflow: auto;
+    color: var(--accent);
+    font-family: 'VCR OSD Mono', "JetBrains Mono", "Fira Code", Consolas, monospace;
+    font-size: clamp(0.68rem, 1.35vw, 0.9rem);
+    line-height: 1.4;
+    white-space: pre;
+    cursor: text;
+    tab-size: 4;
+    -webkit-overflow-scrolling: touch;
+}
+
+.terminal-line {
+    display: flex;
+    align-items: center;
+    min-width: max-content;
+}
+
+.prompt {
+    color: var(--accent);
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.terminal-input {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    min-width: 260px;
+    width: 100%;
+}
+
+.terminal-output {
+    margin-bottom: 8px;
+    min-width: max-content;
+}
+
+.terminal-help {
+    color: var(--text);
+    opacity: 0.85;
+    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Let AS page breathe wider than the normal homepage hero */
+.as-page .hero-content {
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Optional: cleaner mobile spacing */
+@media (max-width: 768px) {
+    .hero {
+        padding: 28px 10px;
+        align-items: flex-start;
+    }
+
+    .terminal-wrapper {
+        border-radius: 6px;
+    }
+
+    .terminal {
+        height: 60vh;
+        min-height: 420px;
+    }
+
+    .terminal-dot {
+        width: 8px;
+        height: 8px;
+    }
+}

@@ -37,22 +37,38 @@
                 <a href="./index.html" class="cta">Back Home</a>
             </div>
 
-            <div class="tcpdump-container">
-                <pre class="as-output">
-LANRanger-BGP# show bgp summary
+            <div class="terminal-wrapper">
+                <div class="terminal-titlebar">
+                    <span>edge1.lmesser-labs.local</span>
+                    <div class="terminal-buttons">
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                        <span class="terminal-dot"></span>
+                    </div>
+                </div>
 
-Local AS:        AS402474
-Network Name:    Lmesser-Labs / LANRanger
-Purpose:         Personal lab, IPv6, BGP, routing, and network engineering experiments
-Primary Stack:   IPv6
-Status:          Globally routed-ish, because of course we had to do BGP
+                <div class="terminal" id="terminal">
+                    <div class="terminal-output">login as: root
+Authenticating with public key "rsa-key-20221122"
+Last login: Fri May  8 12:26:12 2026 from 74.119.254.188
+root@edge1:~# vtysh
 
-LANRanger-BGP# show bgp ipv6 unicast
+Hello, this is FRRouting (version 8.1).
+Copyright 1996-2005 Kunihiro Ishiguro, et al.
 
-Prefix              Origin AS     Notes
-2602:f3df::/40      AS402474      IPv6 allocation announced by LANRanger
+Welcome to the LANRanger edge.
+Type "help" to view available commands.
+                    </div>
 
-                </pre>
+                    <div class="terminal-line">
+                        <span class="prompt">edge1#</span>
+                        <input id="cliInput" class="terminal-input" autocomplete="off" autofocus>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal-help">
+                Try typing <strong>help</strong>, <strong>show bgp summary</strong>, or <strong>show bgp ipv6 unicast</strong>.
             </div>
 
         </div>
@@ -62,6 +78,7 @@ Prefix              Origin AS     Notes
         © 2026 Lmesser-Labs. All rights reserved.
     </footer>
 
+    <script src="./js/fake-router-cli.js"></script>
 </body>
 
 </html>
