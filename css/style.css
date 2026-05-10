@@ -305,7 +305,7 @@ footer {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    font-size: clamp(0.65rem, 1.6vw, 0.85rem);
+    font-size: clamp(0.75rem, 1.6vw, 0.85rem);
     white-space: nowrap;
     overflow: hidden;
 }
@@ -331,22 +331,47 @@ footer {
 
 .terminal {
     padding: clamp(12px, 2vw, 18px);
-    height: clamp(420px, 62vh, 680px);
-    overflow: auto;
+
+    /*
+       This is the important part.
+       Do NOT force a fixed height if you do not want internal scrollbars.
+    */
+    min-height: 320px;
+    height: auto;
+
+    /*
+       No terminal scrollbars.
+       The page itself will grow instead.
+    */
+    overflow: visible;
+
     color: var(--accent);
     font-family: 'VCR OSD Mono', "JetBrains Mono", "Fira Code", Consolas, monospace;
-    font-size: clamp(0.68rem, 1.35vw, 0.9rem);
-    line-height: 1.4;
-    white-space: pre;
+    font-size: clamp(0.78rem, 1.35vw, 0.9rem);
+    line-height: 1.45;
+
+    /*
+       Let command output wrap naturally instead of forcing horizontal scroll.
+    */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+
     cursor: text;
     tab-size: 4;
-    -webkit-overflow-scrolling: touch;
+}
+
+.terminal-output {
+    margin-bottom: 8px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .terminal-line {
     display: flex;
     align-items: center;
-    min-width: max-content;
+    width: 100%;
+    min-width: 0;
 }
 
 .prompt {
@@ -362,21 +387,8 @@ footer {
     font-family: inherit;
     font-size: inherit;
     outline: none;
-    min-width: 260px;
     width: 100%;
-}
-
-.terminal-output {
-    margin-bottom: 8px;
-    min-width: max-content;
-}
-
-.terminal-help {
-    color: var(--text);
-    opacity: 0.85;
-    font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-    margin-top: 10px;
-    text-align: center;
+    min-width: 0;
 }
 
 /* Let AS page breathe wider than the normal homepage hero */
@@ -385,7 +397,15 @@ footer {
     max-width: 1200px;
 }
 
-/* Optional: cleaner mobile spacing */
+.terminal-help {
+    color: var(--text);
+    opacity: 0.85;
+    font-size: clamp(0.75rem, 1.4vw, 0.85rem);
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Mobile cleanup */
 @media (max-width: 768px) {
     .hero {
         padding: 28px 10px;
@@ -394,11 +414,22 @@ footer {
 
     .terminal-wrapper {
         border-radius: 6px;
+        width: 100%;
     }
 
     .terminal {
-        height: 60vh;
-        min-height: 420px;
+        min-height: 300px;
+
+        /*
+           iOS Safari zooms inputs smaller than 16px.
+           Since the input inherits from .terminal, make terminal 16px on mobile.
+        */
+        font-size: 16px;
+        line-height: 1.45;
+    }
+
+    .terminal-input {
+        font-size: 16px;
     }
 
     .terminal-dot {
