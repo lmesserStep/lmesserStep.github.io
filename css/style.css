@@ -616,10 +616,36 @@ footer {
     flex-shrink: 0;
 }
 
+.stl-link.coming-soon {
+    cursor: not-allowed;
+}
+
 .stl-link.coming-soon::after {
     content: " (coming soon)";
     font-size: 0.7rem;
     opacity: 0.6;
+}
+
+.stl-downloads {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.stl-downloads .stl-link {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.stl-downloads .stl-link:hover {
+    opacity: 1;
+    text-shadow: 0 0 6px var(--accent);
+}
+
+.or-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
 }
 
 @media (max-width: 768px) {

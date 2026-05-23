@@ -79,6 +79,57 @@
         </div>
 
         <div class="ranpi-section">
+            <h2>RANPI Software</h2>
+            <p>
+                Before you can survey coverage, you need a network running. RANPI is a self-hosted web application that
+                puts a control panel around srsRAN — handling process management, configuration editing, and live
+                system monitoring from a browser on port 8000. It runs as a systemd service on the same device as the
+                radio stack.
+            </p>
+            <p>
+                The interface supports both 4G eNB and 5G gNB workflows. Start and stop srsRAN processes, edit
+                configuration files directly through the UI, watch system metrics in real time, and monitor UE
+                telemetry — all without touching a terminal once the system is set up. It works alongside
+                OpenCellSurvey: RANPI manages the radio, OCS measures what it's doing.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-label">Process Manager</span>
+                    Start, stop, and monitor srsRAN 4G and 5G processes. Validates binary paths before launch and surfaces errors directly in the UI.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Config Editor — 4G</span>
+                    Tabbed editor for enb.conf, sib.conf, rr.conf, and rb.conf. Saved as raw text with atomic write and .bak backup.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Config Editor — 5G</span>
+                    Dual-mode editor for gnb.yaml: structured form view for common fields, or full CodeMirror YAML editor. Unknown keys are preserved on save.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">System Monitor</span>
+                    Live CPU, memory, and system metrics via psutil. Visible without leaving the management interface.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">UE Telemetry</span>
+                    Real-time UE metrics ingested over WebSocket, UDP, or stdout. Useful for watching attach state and signal quality during a session.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Binary Path Settings</span>
+                    Auto-detects srsRAN binaries in standard paths or accepts manual overrides. Validates existence and executable permissions before saving.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Auth + CSRF</span>
+                    Session-based authentication with CSRF protection. Default credentials are enforced to change on first login.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Installer + Upgrades</span>
+                    Single installer script handles fresh installs and in-place upgrades from v1.x. Backs up /opt/ranpi before touching anything. Rollback instructions shown on failure.
+                </div>
+            </div>
+        </div>
+
+        <div class="ranpi-section">
             <h2>OpenCellSurvey</h2>
             <p>
                 OpenCellSurvey (OCS) is the RF survey layer of RANPI. It's a self-hosted web application that provides
@@ -134,15 +185,19 @@
                 </div>
                 <div class="stack-row">
                     <span class="stack-key">RAN</span>
-                    <span class="stack-val">srsRAN 4G — software-defined LTE eNodeB and UE with PHY/MAC layer access</span>
+                    <span class="stack-val">srsRAN 4G / srsRAN Project — software-defined LTE eNodeB and 5G gNB with PHY/MAC layer access</span>
                 </div>
                 <div class="stack-row">
                     <span class="stack-key">RF Hardware</span>
-                    <span class="stack-val">USRP B-series or compatible SDR for CBRS Band 48 and standard LTE bands</span>
+                    <span class="stack-val">USRP B-series or compatible SDR for CBRS Band 48 and standard LTE/NR bands</span>
+                </div>
+                <div class="stack-row">
+                    <span class="stack-key">Management UI</span>
+                    <span class="stack-val">RANPI — FastAPI web app for process control, config editing, UE telemetry, and system monitoring (port 8000)</span>
                 </div>
                 <div class="stack-row">
                     <span class="stack-key">Survey Platform</span>
-                    <span class="stack-val">OpenCellSurvey — self-hosted Node.js web app with interactive map and GPS integration</span>
+                    <span class="stack-val">OpenCellSurvey — self-hosted web app with interactive map, GPS path tracking, and HTML report export (port 8443)</span>
                 </div>
                 <div class="stack-row">
                     <span class="stack-key">Measurement</span>
@@ -150,7 +205,7 @@
                 </div>
                 <div class="stack-row">
                     <span class="stack-key">Deployment</span>
-                    <span class="stack-val">Linux + systemd, HTTPS on port 8443, installer scripts for rapid setup</span>
+                    <span class="stack-val">Ubuntu 22.04+, systemd services, installer scripts — amd64 and arm64</span>
                 </div>
             </div>
         </div>
@@ -187,13 +242,14 @@
         <span class="stl-link coming-soon">STL Download</span>
     </div>
 </div>
+        </div>
 
         <div class="ranpi-section">
             <h2>Status</h2>
             <p>
-                OpenCellSurvey is in its initial public release. The core survey workflow — measurements, GPS tracking,
-                map visualization, and HTML export — is functional. The LTE measurement component is built separately and
-                connected to the OCS application.
+                RANPI v2.6 is the current release. The management interface, config editor, process manager, and UE
+                telemetry are all functional. OpenCellSurvey is in its initial public release alongside it — the two
+                applications are designed to run together on the same device.
             </p>
             <p>
                 This is a lab-grade platform intended for private LTE and CBRS testing, field survey experimentation, and
@@ -201,7 +257,8 @@
                 product. It is what happens when a network engineer gets tired of having no tools.
             </p>
             <div class="ranpi-cta-row">
-                <a href="https://github.com/lmesserStep/OpenCellSurvey" class="cta" target="_blank" rel="noopener noreferrer">GitHub →</a>
+                <a href="https://github.com/lmesserStep/ranpi" class="cta" target="_blank" rel="noopener noreferrer">RANPI GitHub →</a>
+                <a href="https://github.com/lmesserStep/OpenCellSurvey" class="cta" target="_blank" rel="noopener noreferrer">OpenCellSurvey GitHub →</a>
                 <a href="./projects.html" class="cta">All Projects</a>
             </div>
         </div>
