@@ -613,7 +613,6 @@ footer {
     letter-spacing: 1px;
     opacity: 0.5;
     white-space: nowrap;
-    cursor: not-allowed;
     flex-shrink: 0;
 }
 
