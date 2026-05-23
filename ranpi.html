@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>RANPI | Lmesser-Labs / LANRanger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Lmesser-Labs/LANRanger</div>
+        <nav>
+            <a href="./index.html">Home</a>
+            <a href="./projects.html">Projects</a>
+            <a href="./ranpi.html">RANPI</a>
+            <a href="#blog">Blog</a>
+            <a href="#product">Product</a>
+            <a href="./about.html">About</a>
+        </nav>
+    </header>
+
+    <section class="ranpi-page">
+
+        <div class="ranpi-hero">
+            <h1>RANPI</h1>
+            <p class="subtitle">Private LTE. Portable. Self-hosted.</p>
+        </div>
+
+        <div class="ranpi-section">
+            <h2>Why I Built This</h2>
+            <p>
+                The problem started when I got my first private LTE network running. I had an Open5GS core, srsRAN on the
+                radio side, a CBRS-band SDR, and a SIM I provisioned myself. I walked across my property and the UE stayed
+                connected. Packets were flowing. It worked.
+            </p>
+            <p>
+                Then I asked the obvious question: <em>how good is it, really?</em>
+            </p>
+            <p>
+                I had no way to answer it. Not in any meaningful sense. I could read RSRP from a log file. I could stand
+                in one spot and squint at numbers scrolling past a terminal. But I had no coverage map. No survey path.
+                No way to compare corner to corner or floor to floor. The tools that network engineers reach for in
+                the enterprise world — Ekahau, AirMagnet, spectrum analyzers with RF capture — they're built for Wi-Fi,
+                cost thousands of dollars, and have no concept of an LTE PHY layer you assembled yourself.
+            </p>
+            <p>
+                Commercial LTE drive test software exists. It's what carriers use. It's also what costs more than most
+                home lab setups combined. None of it expects you to be running an open-source stack.
+            </p>
+
+            <div class="callout">
+                <p>
+                    There was no RF survey tool designed for a person who built their own LTE network on a shelf.
+                    So I built one.
+                </p>
+            </div>
+
+            <p>
+                I started by writing a measurement utility that hooked directly into the srsRAN PHY layer and pulled
+                RSSI, RSRP, and RSRQ out in a structured format. That became its own project — the
+                <em>LTE Cell Measurement Utility</em>. But raw JSON measurements are still just numbers. I needed
+                something to turn walking around a building into a picture.
+            </p>
+            <p>
+                That's where OpenCellSurvey came from. I built a web-based survey platform that consumed those
+                measurements, paired them with GPS coordinates, and painted them onto a map. Real coverage visualization.
+                The kind of output you'd get from a carrier drive test, running on a Raspberry Pi in my lab.
+            </p>
+            <p>
+                RANPI is the broader platform. The name is what it says: a RAN on a Pi. A compact, portable, self-contained
+                cellular lab built from SDR hardware, open-source software, and the kind of stubbornness that makes most
+                people say "why would you even try that?" It's the platform I wish existed when I started.
+            </p>
+        </div>
+
+        <div class="ranpi-section">
+            <h2>OpenCellSurvey</h2>
+            <p>
+                OpenCellSurvey (OCS) is the RF survey layer of RANPI. It's a self-hosted web application that provides
+                live LTE signal measurement visualization, GPS-tracked survey paths, and exportable HTML reports.
+            </p>
+            <p>
+                The measurement workflow is driven by the LTE Cell Measurement Utility, which decodes MAC and PHY layer
+                frames from srsRAN to produce live signal data. OCS takes that data and puts it on a map.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-label">Coverage Map</span>
+                    Live interactive map with 5-meter grid RSRP color mapping as you walk a survey path.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">GPS Path Tracking</span>
+                    Real-time GPS integration for walking surveys with continuous path visualization.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Multi-Band Support</span>
+                    Supports multiple LTE bands including CBRS Band 48 for private network deployments.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Live RSRP Chart</span>
+                    Rolling signal chart showing RSRP trend in real time during an active survey.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Propagation Overlay</span>
+                    FSPL-based tower simulation overlay for comparing theoretical vs. measured coverage.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Survey Reports</span>
+                    HTML export with embedded map screenshot, RSRP chart, and measurement table — ready for PDF.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Session Management</span>
+                    Rename, revisit, and delete survey sessions. Full history of past surveys.
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">PRB Selection</span>
+                    PRB selection support across LTE bandwidths for flexible measurement configuration.
+                </div>
+            </div>
+        </div>
+
+        <div class="ranpi-section">
+            <h2>Stack</h2>
+            <div class="stack-list">
+                <div class="stack-row">
+                    <span class="stack-key">Core</span>
+                    <span class="stack-val">Open5GS — EPC / 5G core for UE registration, bearer management, PDN connectivity</span>
+                </div>
+                <div class="stack-row">
+                    <span class="stack-key">RAN</span>
+                    <span class="stack-val">srsRAN 4G — software-defined LTE eNodeB and UE with PHY/MAC layer access</span>
+                </div>
+                <div class="stack-row">
+                    <span class="stack-key">RF Hardware</span>
+                    <span class="stack-val">USRP B-series or compatible SDR for CBRS Band 48 and standard LTE bands</span>
+                </div>
+                <div class="stack-row">
+                    <span class="stack-key">Survey Platform</span>
+                    <span class="stack-val">OpenCellSurvey — self-hosted Node.js web app with interactive map and GPS integration</span>
+                </div>
+                <div class="stack-row">
+                    <span class="stack-key">Measurement</span>
+                    <span class="stack-val">LTE Cell Measurement Utility — srsRAN PHY hook producing RSSI, RSRP, RSRQ as JSON</span>
+                </div>
+                <div class="stack-row">
+                    <span class="stack-key">Deployment</span>
+                    <span class="stack-val">Linux + systemd, HTTPS on port 8443, installer scripts for rapid setup</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ranpi-section">
+            <h2>Build Your Own</h2>
+            <p>
+                RANPI is designed to be physically compact and reproducible. The enclosures for the Raspberry Pi 5 and
+                the B210 LibreSDR clone are custom-designed to house both units together in a portable form factor.
+                STL files for 3D printing will be published here when finalized.
+            </p>
+            <div class="stl-list">
+                <div class="stl-item">
+                    <div class="stl-item-info">
+                        <span class="stl-item-name">Raspberry Pi 5 Enclosure</span>
+                        <span class="stl-item-desc">Compact enclosure for the Raspberry Pi 5. Designed for active cooling with cutouts for GPIO, USB, and Ethernet access.</span>
+                    </div>
+                    <span class="stl-link coming-soon">STL Download</span>
+                </div>
+                <div class="stl-item">
+                    <div class="stl-item-info">
+                        <span class="stl-item-name">B210 LibreSDR Clone Enclosure</span>
+                        <span class="stl-item-desc">Enclosure for the B210-compatible LibreSDR clone. Includes SMA antenna port cutouts and ventilation slots for sustained RF operation.</span>
+                    </div>
+                    <span class="stl-link coming-soon">STL Download</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ranpi-section">
+            <h2>Status</h2>
+            <p>
+                OpenCellSurvey is in its initial public release. The core survey workflow — measurements, GPS tracking,
+                map visualization, and HTML export — is functional. The LTE measurement component is built separately and
+                connected to the OCS application.
+            </p>
+            <p>
+                This is a lab-grade platform intended for private LTE and CBRS testing, field survey experimentation, and
+                learning how carrier-grade cellular infrastructure actually works from the PHY layer up. It is not a
+                product. It is what happens when a network engineer gets tired of having no tools.
+            </p>
+            <div class="ranpi-cta-row">
+                <a href="https://github.com/lmesserStep/OpenCellSurvey" class="cta" target="_blank" rel="noopener noreferrer">GitHub →</a>
+                <a href="./projects.html" class="cta">All Projects</a>
+            </div>
+        </div>
+
+    </section>
+
+    <footer>
+        © 2026 Lmesser-Labs. All rights reserved.
+    </footer>
+
+</body>
+
+</html>

@@ -406,3 +406,211 @@ footer {
         height: 8px;
     }
 }
+
+/* ========================================
+   RANPI Page
+   ======================================== */
+
+.ranpi-page {
+    flex: 1;
+    padding: 60px 40px 60px;
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.ranpi-hero {
+    text-align: center;
+    margin-bottom: 70px;
+}
+
+.ranpi-hero h1 {
+    font-size: 3rem;
+    letter-spacing: 6px;
+    margin-bottom: 12px;
+}
+
+.ranpi-hero .subtitle {
+    font-size: 0.95rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 0;
+}
+
+.ranpi-section {
+    margin-bottom: 60px;
+}
+
+.ranpi-section h2 {
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.ranpi-section p {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 18px;
+}
+
+.ranpi-section p:last-child {
+    margin-bottom: 0;
+}
+
+.ranpi-section p em {
+    color: var(--text);
+    font-style: normal;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 6px;
+}
+
+.feature-item {
+    padding: 14px 16px;
+    border-left: 2px solid rgba(0, 255, 136, 0.35);
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.feature-item .feature-label {
+    display: block;
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.stack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.stack-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    font-size: 0.88rem;
+}
+
+.stack-key {
+    color: var(--accent);
+    letter-spacing: 1px;
+    min-width: 160px;
+    flex-shrink: 0;
+}
+
+.stack-val {
+    color: var(--muted);
+}
+
+.ranpi-cta-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.ranpi-cta-row .cta {
+    font-size: 0.85rem;
+    padding: 10px 24px;
+}
+
+.callout {
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    background: rgba(0, 255, 136, 0.03);
+    margin: 28px 0;
+}
+
+.callout p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.7;
+}
+
+.stl-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.stl-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-left: 2px solid rgba(0, 255, 136, 0.35);
+    gap: 20px;
+}
+
+.stl-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stl-item-name {
+    font-size: 0.88rem;
+    color: var(--text);
+    letter-spacing: 1px;
+}
+
+.stl-item-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.stl-link {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 1px;
+    opacity: 0.5;
+    white-space: nowrap;
+    cursor: not-allowed;
+    flex-shrink: 0;
+}
+
+.stl-link.coming-soon::after {
+    content: " (coming soon)";
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+    .ranpi-page {
+        padding: 40px 20px 50px;
+    }
+
+    .ranpi-hero h1 {
+        font-size: 2rem;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stack-key {
+        min-width: 120px;
+    }
+
+    .stl-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
