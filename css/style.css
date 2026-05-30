@@ -643,6 +643,14 @@ footer {
     text-shadow: 0 0 6px var(--accent);
 }
 
+.stl-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 1px solid rgba(0, 255, 136, 0.25);
+    flex-shrink: 0;
+}
+
 .or-desc {
     font-size: 0.75rem;
     color: var(--muted);
