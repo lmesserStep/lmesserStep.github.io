@@ -84,7 +84,7 @@
                 Before you can survey coverage, you need a network running. RANPI is a self-hosted web application that
                 puts a control panel around srsRAN — handling process management, configuration editing, and live
                 system monitoring from a browser on port 8000. It runs as a systemd service on the same device as the
-                radio stack.
+                radio stack. The front-end of RANPI was Claude assisted, no shame in that. I am not a good web developer, and if I can increase efficiency by using an AI co-pilot to handle the UI layer, then that's what I'm going to do. The back-end is all me, though. 
             </p>
             <p>
                 The interface supports both 4G eNB and 5G gNB workflows. Start and stop srsRAN processes, edit
@@ -215,32 +215,24 @@
             <p>
                 RANPI is designed to be physically compact and reproducible. The enclosures for the Raspberry Pi 5 and
                 the B210 LibreSDR clone are custom-designed to house both units together in a portable form factor.
-                STL files for 3D printing will be published here when finalized.
+                
             </p>
 <div class="stl-list">
     <div class="stl-item">
         <div class="stl-item-info">
-            <span class="stl-item-name">Raspberry Pi 5 Enclosure</span>
+            <span class="stl-item-name">RANPI Enclosure </span>
             <span class="stl-item-desc">
-                Compact enclosure for the Raspberry Pi 5. Designed for active cooling with cutouts for GPIO, USB, and Ethernet access.
+                Compact enclosure for the Raspberry Pi 5 and B210 LibreSDR clone. Designed for active cooling with cutouts for GPIO, USB, and Ethernet access. Two-part design with snap-fit assembly. STL files available for 3D printing.
             </span>
         </div>
         <div class="stl-downloads">
+            <span class="or-desc">Download STL files:</span>
             <a class="stl-link" href="assets/top.3mf" download>Top 3MF</a>
             <span class="or-desc" >or</span>
             <a class="stl-link" href="assets/bottom.3mf" download>Bottom 3MF</a>
         </div>
     </div>
 
-    <div class="stl-item">
-        <div class="stl-item-info">
-            <span class="stl-item-name">B210 LibreSDR Clone Enclosure</span>
-            <span class="stl-item-desc">
-                Enclosure for the B210-compatible LibreSDR clone. Includes SMA antenna port cutouts and ventilation slots for sustained RF operation.
-            </span>
-        </div>
-        <span class="stl-link coming-soon">STL Download</span>
-    </div>
 </div>
         </div>
 
