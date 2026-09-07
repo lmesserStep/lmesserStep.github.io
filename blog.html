@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LANRanger field notes from real network troubleshooting: disappearing DHCP offers, SIP call drops, SPBm control-plane problems, BGP, IPv6 fragmentation, multicast, Private LTE, SDR, and LibreFi.">
+    <title>Blog | Lmesser-Labs / LANRanger</title>
+
+    <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/blog.css">
+</head>
+
+<body class="blog-body">
+    <a class="skip-link" href="#main">Skip to stories</a>
+
+    <header>
+        <div class="logo">Lmesser-Labs/LANRanger</div>
+
+        <nav aria-label="Main navigation">
+            <a href="./index.html">Home</a>
+            <a href="./projects.html">Projects</a>
+            <a href="./ranpi.html">RANPI</a>
+            <a href="./blog.html" aria-current="page">Blog</a>
+            <a href="./index.html#product">Product</a>
+            <a href="./about.html">About</a>
+        </nav>
+    </header>
+
+    <main id="main" class="blog-page">
+
+        <div class="blog-intro">
+            <p class="eyebrow">LANRanger / Field notes</p>
+
+            <h1>
+                It's the network.<br>
+                Show me the evidence.
+            </h1>
+
+            <p>
+                Packet captures, weird routing decisions, DHCP packets disappearing in transit,
+                BGP doing something stupid, phones dropping calls, oversized packets, SDRs,
+                Private LTE, and the occasional problem that absolutely should not work the way
+                it does.
+            </p>
+
+            <p>
+                These are some of the more interesting problems I've worked through in production
+                networks and in my lab. Anything customer-specific has been removed. The technical
+                problem is the interesting part anyway.
+            </p>
+
+            <p class="editorial-note">
+                Names, locations, and identifying information have been removed. I also try to
+                separate what a packet capture actually proved from whatever theory I had before
+                taking the capture.
+            </p>
+        </div>
+
+
+        <nav class="story-index" aria-label="Stories on this page">
+
+            <a href="#outbound-ports">
+                <span>01 / Connectivity</span>
+                Only odd numbered ports?
+            </a>
+
+            <a href="#dhcp-disappears">
+                <span>02 / DHCP</span>
+                The OFFER left. Then it disappeared.
+            </a>
+
+            <a href="#sip-bye">
+                <span>03 / VoIP</span>
+                RTP was fine. The call still dropped.
+            </a>
+
+            <a href="#voss-traces">
+                <span>04 / Switching</span>
+                Making a noisy VOSS trace useful
+            </a>
+
+            <a href="#bgp-not-bgp">
+                <span>05 / Routing</span>
+                The BGP problem wasn't BGP
+            </a>
+
+            <a href="#oversized-pings">
+                <span>06 / IPv6</span>
+                The 33,000-byte question
+            </a>
+
+            <a href="#ipv6-next-hop">
+                <span>07 / BGP / IPv6</span>
+                Why is my next hop link-local?
+            </a>
+
+            <a href="#multicast">
+                <span>08 / Multicast</span>
+                Stop flooding it everywhere
+            </a>
+
+            <a href="#lte-coverage">
+                <span>09 / Private LTE</span>
+                It connects. How good is it?
+            </a>
+
+            <a href="#librefi">
+                <span>10 / SDR</span>
+                From barely moving data to streaming audio
+            </a>
+
+        </nav>
+
+
+        <div class="blog-stories">
+
+            <!-- ========================================================= -->
+            <!-- 01 -->
+            <!-- ========================================================= -->
+
+            <article id="outbound-ports" aria-labelledby="ports-title">
+
+                <p class="eyebrow">01 / Connectivity / OutgoingPorts</p>
+
+                <h2 id="ports-title">Only odd numbered ports?</h2>
+
+                <p class="story-lead">
+                    At one point I ran into a network where outbound connections appeared to work
+                    only when the destination port was odd numbered. That's weird enough that I
+                    wanted a way to prove exactly what was happening instead of guessing at it.
+                </p>
+
+                <p>
+                    "The internet doesn't work" is basically useless as a troubleshooting statement.
+                    If TCP/443 works, TCP/444 fails, TCP/445 works, and TCP/446 fails, now we actually
+                    have something interesting.
+                </p>
+
+                <h3>Build a test for the exact problem</h3>
+
+                <p>
+                    I ended up building OutgoingPorts so I could test arbitrary outbound TCP ports
+                    and see whether a three-way handshake actually completed. The remote side also
+                    records the source and destination port it sees, which makes the tool useful when
+                    NAT is involved.
+                </p>
+
+                <p>
+                    That last part matters. You might think you're testing one source port locally
+                    while a firewall is translating it into something completely different before
+                    the packet reaches the server.
+                </p>
+
+                <p>
+                    Instead of trying random websites or doing fifty different telnet tests, I could
+                    produce a repeatable pattern and then compare that pattern against the firewall,
+                    NAT, and packet captures.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        Weird patterns are useful. Don't average them away by calling the problem
+                        "intermittent." Make a test that reproduces the pattern and then capture it.
+                    </p>
+                </div>
+
+                <a class="story-source" href="./projects.html">
+                    Explore OutgoingPorts on the projects page &rarr;
+                </a>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 02 -->
+            <!-- ========================================================= -->
+
+            <article id="dhcp-disappears" aria-labelledby="dhcp-title">
+
+                <p class="eyebrow">02 / DHCP / QinQ / MPLS</p>
+
+                <h2 id="dhcp-title">The OFFER left. Then it disappeared.</h2>
+
+                <p class="story-lead">
+                    A phone boots, sends DHCP, and never gets an address. Easy enough to blame DHCP.
+                    Except the DHCP server was answering.
+                </p>
+
+                <p>
+                    We captured the DHCP transaction on the server side and could clearly see the
+                    DHCP OFFER leaving the firewall. The problem was that the same OFFER never
+                    appeared on the far side of the transport network.
+                </p>
+
+                <p>
+                    That immediately changes the troubleshooting scope. If the server generated the
+                    OFFER and I can physically see that packet leave its interface, I'm done trying
+                    random DHCP server settings until somebody proves the packet actually arrives at
+                    the client side.
+                </p>
+
+                <h3>And only one VLAN was broken</h3>
+
+                <p>
+                    The path crossed a managed transport network using VLAN encapsulation and QinQ.
+                    Other traffic was working. The failure appeared to be isolated to VLAN 116,
+                    which made the problem even more interesting.
+                </p>
+
+                <p>
+                    We also rebooted a phone at another remote site and reproduced the same behavior.
+                    The phone dropped off the network and could not obtain a new lease.
+                </p>
+
+                <p>
+                    Shortly afterward another phone at that location went offline. For a minute,
+                    that looked like the problem was spreading.
+                </p>
+
+                <p>
+                    It wasn't.
+                </p>
+
+                <p>
+                    Somebody had moved the original non-working phone onto the port where the working
+                    phone had been connected. The second phone lost power because it had been
+                    unplugged. Completely unrelated to DHCP, but exactly the kind of thing that can
+                    send troubleshooting in the wrong direction if the physical event isn't
+                    accounted for.
+                </p>
+
+                <h3>Packet boundaries matter</h3>
+
+                <p>
+                    Capturing at only one point would have left this as "DHCP isn't working."
+                    Capturing on both sides turned it into something much more specific:
+                    the OFFER exists here and does not exist there.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        Follow the packet. Once you know where it disappears, stop troubleshooting
+                        everything before that point.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 03 -->
+            <!-- ========================================================= -->
+
+            <article id="sip-bye" aria-labelledby="sip-title">
+
+                <p class="eyebrow">03 / VoIP / SIP / RTP</p>
+
+                <h2 id="sip-title">RTP was fine. The call still dropped.</h2>
+
+                <p class="story-lead">
+                    Calls were dropping a few minutes after being established. The first assumption
+                    with VoIP is usually packet loss, jitter, switching, QoS, or something else in
+                    the media path.
+                </p>
+
+                <p>
+                    So I captured it.
+                </p>
+
+                <p>
+                    RTP between the phones was flowing directly between the endpoints. The captures
+                    showed bidirectional media and I wasn't seeing the packet-loss event that would
+                    explain the disconnect.
+                </p>
+
+                <p>
+                    Then the SIP side gave away what was actually happening.
+                </p>
+
+                <h3>The network didn't kill the call</h3>
+
+                <p>
+                    At roughly the same point in the failed calls, the call-control server sent a
+                    SIP BYE. In one capture it happened at about 235 seconds.
+                </p>
+
+                <p>
+                    That's a very different problem from RTP falling apart.
+                </p>
+
+                <p>
+                    If the PBX tells both endpoints to tear the call down, the phones are doing
+                    exactly what they were instructed to do. The next questions become session
+                    timers, endpoint state, registration, call-control logic, keepalives, resource
+                    events, and server logs.
+                </p>
+
+                <h3>Capture the right server</h3>
+
+                <p>
+                    Another useful discovery came later when we realized one of the phones was
+                    registered to a different call-control appliance than the appliance being
+                    captured.
+                </p>
+
+                <p>
+                    That's an easy mistake to make in a distributed voice environment. You can have
+                    a beautiful packet capture of completely irrelevant traffic.
+                </p>
+
+                <p>
+                    We expanded the test to compare captures around the phones, the switching path,
+                    and the actual call-control system. We also looked at the periodic control and
+                    keepalive traffic instead of focusing exclusively on RTP.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        A dropped voice call does not automatically mean the network dropped RTP.
+                        Find out who actually terminated the session.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 04 -->
+            <!-- ========================================================= -->
+
+            <article id="voss-traces" aria-labelledby="voss-title">
+
+                <p class="eyebrow">04 / Switching / SPBm / VOSSLoopTrace</p>
+
+                <h2 id="voss-title">Making a noisy VOSS trace useful</h2>
+
+                <p class="story-lead">
+                    Sometimes the switch already has the answer. The problem is buried inside five
+                    thousand lines of output.
+                </p>
+
+                <p>
+                    I've spent a lot of time working with Extreme Fabric Engine/VOSS and SPBm.
+                    When something starts hammering the control plane, one of the useful tools is
+                    the switch's trace output.
+                </p>
+
+                <p>
+                    The downside is that trace output gets noisy very quickly.
+                </p>
+
+                <h3>Find the things that keep showing up</h3>
+
+                <p>
+                    VOSSLoopTrace came from wanting to automate the boring part. It can process an
+                    existing trace or collect one directly from a switch, then start identifying
+                    ports, VLANs, and MAC addresses that repeatedly appear in traffic hitting the
+                    control plane.
+                </p>
+
+                <p>
+                    That doesn't mean every MAC it reports is guilty. It means those are the things
+                    I want to look at first.
+                </p>
+
+                <p>
+                    I've dealt with environments where loops, port flapping, inconsistent tagging,
+                    missing fabric services, and other Layer 2 problems were all possible suspects.
+                    Being able to reduce a huge trace into a short list of interfaces and sources
+                    makes the next packet capture considerably easier.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        Automation doesn't need to diagnose the entire network. Sometimes its job
+                        is just to turn 5,000 lines into the 20 lines I actually care about.
+                    </p>
+                </div>
+
+                <a class="story-source" href="./projects.html">
+                    Explore VOSSLoopTrace on the projects page &rarr;
+                </a>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 05 -->
+            <!-- ========================================================= -->
+
+            <article id="bgp-not-bgp" aria-labelledby="bgp-problem-title">
+
+                <p class="eyebrow">05 / Routing / BGP / BFD / OSPF</p>
+
+                <h2 id="bgp-problem-title">The BGP problem wasn't BGP</h2>
+
+                <p class="story-lead">
+                    BGP was repeatedly dropping. BFD was involved. There were also fabric problems
+                    nearby, so there were plenty of places to point a finger.
+                </p>
+
+                <p>
+                    This is where troubleshooting by protocol name gets dangerous. The alarm says
+                    BGP went down, so everybody starts staring at BGP.
+                </p>
+
+                <p>
+                    BGP was the victim.
+                </p>
+
+                <h3>Another routing protocol was changing the path</h3>
+
+                <p>
+                    OSPF was also enabled on the firewall. The interaction between the routing
+                    protocols was changing reachability underneath the BFD/BGP session and the
+                    adjacency would flap.
+                </p>
+
+                <p>
+                    Once OSPF was removed from that path, BFD and BGP stabilized.
+                </p>
+
+                <p>
+                    There were other things worth cleaning up in the environment too, including
+                    fabric-service inconsistencies, MLT tagging differences, and interfaces that
+                    had been flapping. But those shouldn't be combined into one giant root cause
+                    simply because they existed at the same time.
+                </p>
+
+                <h3>Symptoms aren't ownership</h3>
+
+                <p>
+                    A BGP-down alarm tells me which protocol noticed the failure. It doesn't
+                    necessarily tell me which protocol caused it.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        When a routing adjacency keeps resetting, inspect the route used to reach
+                        the peer. The control session may be fine while the path underneath it keeps
+                        changing.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 06 -->
+            <!-- ========================================================= -->
+
+            <article id="oversized-pings" aria-labelledby="pings-title">
+
+                <p class="eyebrow">06 / Packet experiments / IPv4 / IPv6 / PMTU</p>
+
+                <h2 id="pings-title">The 33,000-byte question</h2>
+
+                <p class="story-lead">
+                    I wanted to see exactly what happened when I shoved a roughly 33,000-byte ping
+                    through a network that obviously couldn't carry it as one Ethernet frame.
+                </p>
+
+                <p>
+                    This turned into one of those experiments where Wireshark is more useful than
+                    the ping result itself.
+                </p>
+
+                <h3>One packet becomes a pile of packets</h3>
+
+                <p>
+                    The capture showed the oversized IP packet being carried as a series of
+                    fragments. In one of the tests I was looking at roughly 22 fragments for the
+                    original packet.
+                </p>
+
+                <p>
+                    That also forced me to be precise about what "packet size" meant. Application
+                    payload, ICMP size, IP packet size, and what appears on the wire are not
+                    interchangeable numbers.
+                </p>
+
+                <p>
+                    I also deliberately experimented with Path MTU Discovery and different Don't
+                    Fragment behavior because a successful ping by itself doesn't tell you whether
+                    PMTUD is actually working correctly.
+                </p>
+
+                <h3>IPv6 makes this more interesting</h3>
+
+                <p>
+                    IPv6 moved fragmentation responsibility away from intermediate routers. If a
+                    packet is too large, the network is supposed to return an ICMPv6 Packet Too Big
+                    message and let the source adjust.
+                </p>
+
+                <p>
+                    That's great until ICMPv6 gets filtered somewhere and everything smaller works
+                    while larger traffic mysteriously dies.
+                </p>
+
+                <p>
+                    Those failures are why "I can ping it" has never been enough evidence for me
+                    that a path is healthy.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        Packet size matters. ICMP matters. PMTUD matters. A 64-byte ping proving
+                        reachability does not prove a 1,500-byte or larger flow will behave correctly.
+                    </p>
+                </div>
+
+                <a class="story-source" href="./about.html">
+                    More packet abuse in the lab &rarr;
+                </a>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 07 -->
+            <!-- ========================================================= -->
+
+            <article id="ipv6-next-hop" aria-labelledby="ipv6-next-hop-title">
+
+                <p class="eyebrow">07 / IPv6 / BGP / FRR / FortiGate</p>
+
+                <h2 id="ipv6-next-hop-title">Why is my next hop link-local?</h2>
+
+                <p class="story-lead">
+                    Getting my own ASN and IPv6 space meant I could finally break BGP in ways that
+                    were entirely my own fault.
+                </p>
+
+                <p>
+                    One of the more interesting lab problems involved IPv6 routes being received
+                    correctly while the next hop being advertised was a link-local address.
+                </p>
+
+                <p>
+                    That's perfectly normal in plenty of IPv6 scenarios. It becomes less helpful
+                    when your BGP peer is several routed hops away through an IPv4 SIT tunnel.
+                </p>
+
+                <h3>The route existed. The next hop didn't.</h3>
+
+                <p>
+                    I was peering FRRouting and FortiGate across 6in4 tunnels while announcing my
+                    IPv6 allocation. BGP could exchange the NLRI, but a route is useless if the
+                    receiving router cannot actually resolve the next hop.
+                </p>
+
+                <p>
+                    That sent me through route maps, global IPv6 addresses, static routes,
+                    next-hop-self behavior, EBGP multihop, and the difference between seeing a
+                    prefix in the BGP table and having a usable route in the forwarding table.
+                </p>
+
+                <p>
+                    I also hit another classic BGP issue during this work: inbound updates being
+                    discarded because an inbound policy wasn't present. The peer was established,
+                    routes were being advertised, and they still weren't being installed.
+                </p>
+
+                <h3>Established doesn't mean working</h3>
+
+                <p>
+                    Seeing <code>Established</code> is only the beginning. I want to know what I
+                    advertised, what I received, what next hop was attached to it, whether that
+                    next hop resolves, and whether the route actually made it into the FIB.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        "BGP is up" and "traffic can use the route" are two completely different
+                        statements.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 08 -->
+            <!-- ========================================================= -->
+
+            <article id="multicast" aria-labelledby="multicast-title">
+
+                <p class="eyebrow">08 / Multicast / PIM-SM / IGMP</p>
+
+                <h2 id="multicast-title">Stop flooding it everywhere</h2>
+
+                <p class="story-lead">
+                    Multicast is one of those things that can appear to work while doing something
+                    absolutely terrible to the network underneath it.
+                </p>
+
+                <p>
+                    I worked through an environment where multicast traffic was contributing to
+                    alerts and generally behaving more like traffic that was being sprayed around
+                    than intentionally routed.
+                </p>
+
+                <h3>Give multicast an actual topology</h3>
+
+                <p>
+                    I implemented PIM Sparse Mode through the routed network and used a loopback as
+                    the static Rendezvous Point. The other routers were configured to use the same
+                    RP and participate in the sparse-mode topology.
+                </p>
+
+                <p>
+                    Afterward, the amount of multicast-related protection noise dropped
+                    significantly.
+                </p>
+
+                <p>
+                    That makes sense. The point of multicast isn't "send this everywhere and hope
+                    somebody wanted it." IGMP tells the local network who is interested. PIM gives
+                    the routed network a method to build distribution trees toward those receivers.
+                </p>
+
+                <h3>Working isn't the same as correct</h3>
+
+                <p>
+                    Broadcast-style flooding can make an application appear functional while
+                    creating completely unnecessary traffic elsewhere. The fact that the stream is
+                    visible at the receiver doesn't mean multicast routing is designed correctly.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        If multicast only works because the network is flooding it everywhere, it
+                        doesn't really work.
+                    </p>
+                </div>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 09 -->
+            <!-- ========================================================= -->
+
+            <article id="lte-coverage" aria-labelledby="lte-title">
+
+                <p class="eyebrow">09 / Private LTE / RANPI / OpenCellSurvey</p>
+
+                <h2 id="lte-title">It connects. How good is it?</h2>
+
+                <p class="story-lead">
+                    I had built a Private LTE network with Open5GS, srsRAN, an SDR, and a SIM I
+                    provisioned myself. My phone connected. Data worked. That answered exactly one
+                    question.
+                </p>
+
+                <p>
+                    I still had no idea how good the RF coverage actually was.
+                </p>
+
+                <p>
+                    I could walk around the property while the UE stayed attached, but "still
+                    connected" is a terrible RF measurement.
+                </p>
+
+                <h3>Get the measurements out of the radio</h3>
+
+                <p>
+                    I started digging into the srsRAN PHY layer and built a measurement utility that
+                    could expose values like RSSI, RSRP, and RSRQ as structured data.
+                </p>
+
+                <p>
+                    That gave me numbers, but a JSON object saying RSRP is -93 dBm isn't very useful
+                    six hours later if I don't know where I was standing when it happened.
+                </p>
+
+                <h3>Add location</h3>
+
+                <p>
+                    OpenCellSurvey came from combining those measurements with GPS. The software
+                    records the survey path, associates measurements with locations, displays live
+                    signal information, and can generate a report afterward.
+                </p>
+
+                <p>
+                    I eventually added live RSRP graphs, survey sessions, map overlays, different
+                    LTE bands, CBRS support, indoor floorplan support, and report exports.
+                </p>
+
+                <p>
+                    RANPI grew around the same idea: take the Private LTE lab and turn it into
+                    something portable enough that I can actually walk around with it and collect
+                    useful information.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        Getting a UE attached is step one. Being able to measure what the RF network
+                        is doing is considerably more interesting.
+                    </p>
+                </div>
+
+                <a class="story-source" href="./ranpi.html">
+                    Read the RANPI and OpenCellSurvey project &rarr;
+                </a>
+
+            </article>
+
+
+            <!-- ========================================================= -->
+            <!-- 10 -->
+            <!-- ========================================================= -->
+
+            <article id="librefi" aria-labelledby="librefi-title">
+
+                <p class="eyebrow">10 / SDR / LibreFi / Low-bandwidth networking</p>
+
+                <h2 id="librefi-title">From barely moving data to streaming audio</h2>
+
+                <p class="story-lead">
+                    LibreFi started with a pretty simple question: how much useful IP traffic can I
+                    actually move over a radio link I built myself?
+                </p>
+
+                <p>
+                    "Useful" became the important word.
+                </p>
+
+                <p>
+                    A modem moving a few packets in a test isn't the same thing as having enough
+                    consistent throughput and latency control to support an actual application.
+                </p>
+
+                <h3>Six kilobits was already a fight</h3>
+
+                <p>
+                    Early on, I could get a 6 kbps Opus audio stream through for a few seconds at a
+                    time before playback would stall or fall apart.
+                </p>
+
+                <p>
+                    That gave me something much better than a synthetic throughput number. Audio is
+                    extremely obvious when the link isn't delivering packets consistently.
+                </p>
+
+                <p>
+                    I kept working through the modem, buffering, packet handling, timing, and the
+                    rest of the path until the link could sustain the 6 kbps stream.
+                </p>
+
+                <h3>Then 12 kbps worked</h3>
+
+                <p>
+                    The next milestone was being able to effectively stream the 12 kbps Opus
+                    version of the same audio.
+                </p>
+
+                <p>
+                    Doubling from 6 kbps to 12 kbps sounds almost comically small compared with
+                    normal Ethernet or Wi-Fi speeds. On a custom SDR modem where I control the
+                    physical link, modulation, framing, and network interface, it was a pretty big
+                    jump.
+                </p>
+
+                <p>
+                    This is also why I like testing networks with real applications. An iperf number
+                    can tell me throughput. Listening to a song tells me immediately whether the
+                    application can actually tolerate the way those packets are arriving.
+                </p>
+
+                <div class="story-takeaway">
+                    <strong>The takeaway</strong>
+                    <p>
+                        A link doesn't need to be fast to be interesting. It needs to move enough
+                        data, consistently enough, to do something useful.
+                    </p>
+                </div>
+
+            </article>
+
+        </div>
+
+
+        <div class="blog-end">
+            <p>
+                More experiments, packet captures, radios, routing protocols, and things that move
+                packets.
+            </p>
+
+            <a class="cta" href="./projects.html">Explore the lab</a>
+
+            <a class="story-source" href="#main">
+                Back to top &uarr;
+            </a>
+        </div>
+
+    </main>
+
+    <footer>
+        &copy; 2026 Lmesser-Labs. All rights reserved.
+    </footer>
+
+</body>
+</html>
